@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4">All Projects</h2>
+
+<!-- Search & Filter -->
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="q" class="form-control" placeholder="Search projects..." value="{{ request.args.get('q','') }}">
+    </div>
+    <div class="col-md-3">
+        <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat.name }}" {% if request.args.get('category')==cat.name %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="sort" class="form-select">
+            <option value="newest" {% if request.args.get('sort')=='newest' %}selected{% endif %}>Newest</option>
+            <option value="ending_soon" {% if request.args.get('sort')=='ending_soon' %}selected{% endif %}>Ending Soon</option>
+            <option value="most_funded" {% if request.args.get('sort')=='most_funded' %}selected{% endif %}>Most Funded</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+
+<!-- Projects List -->
+<div class="row">
+    {% for project in projects %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ project.title }}</h5>
+                <p class="card-text">Category: {{ project.category.name }}</p>
+                <p class="card-text">Goal: {{ project.goal_amount }} | Raised: {{ project.current_amount }}</p>
+                <p class="card-text">Deadline: {{ project.deadline.strftime('%Y-%m-%d') }}</p>
+
+                <div class="progress mb-2">
+                    <div class="progress-bar" role="progressbar"
+                         style="width: {{ (project.current_amount / project.goal_amount * 100) | round(0) }}%">
+                         {{ (project.current_amount / project.goal_amount * 100) | round(0) }}%
+                    </div>
+                </div>
+
+                <a href="{{ url_for('project_detail', project_id=project.id) }}" class="btn btn-primary mt-auto">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        <p>No projects found.</p>
+    {% endfor %}
+</div>
+{% endblock %}
